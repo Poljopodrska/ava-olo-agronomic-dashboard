@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Agronomic Approval Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .dashboard-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 2rem auto;
+            height: 700px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .conversations-panel {
+            width: 400px;
+            background: #f8f9fa;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            background: #2c5530;
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .conversations-section {
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .section-title.unapproved {
+            color: #dc3545;
+        }
+
+        .section-title.approved {
+            color: #28a745;
+        }
+
+        .conversation-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .conversation-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .conversation-item.unapproved {
+            border-left: 4px solid #dc3545;
+            background: #fff5f5;
+        }
+
+        .conversation-item.approved {
+            border-left: 4px solid #28a745;
+            background: #f0fff4;
+        }
+
+        .conversation-item.selected {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .farmer-name {
+            font-weight: 600;
+            color: #2c5530;
+            margin-bottom: 0.25rem;
+        }
+
+        .farmer-details {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-preview {
+            font-size: 0.85rem;
+            color: #333;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .details-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .details-header {
+            background: #2c5530;
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .conversation-details {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .no-selection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            color: #666;
+        }
+
+        .message-pair {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .farmer-message {
+            background: #e3f2fd;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #2196f3;
+        }
+
+        .farmer-message strong {
+            color: #1976d2;
+        }
+
+        .ava-response {
+            background: #f0fff4;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #28a745;
+        }
+
+        .ava-response strong {
+            color: #1b5e20;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .btn-manual {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-manual:hover {
+            background: #5a6268;
+        }
+
+        .btn-bulk {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-bulk:hover {
+            background: #0056b3;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .bulk-actions {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .manual-message {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+        }
+
+        .manual-message textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .manual-message .btn {
+            margin-top: 0.5rem;
+        }
+
+        .alert {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+            color: #1b5e20;
+            padding: 1rem;
+            margin: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .alert.error {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .approval-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .approval-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .approval-status.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+                height: auto;
+                margin: 1rem;
+            }
+            
+            .conversations-panel {
+                width: 100%;
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div style="font-size: 2rem;">🌾</div>
+            <h1>AVA OLO Agronomic Approval</h1>
+        </div>
+        <div style="color: #28a745; font-weight: 600;">
+            ✅ Active - Port 8007
+        </div>
+    </div>
+
+    {% if message %}
+    <div class="alert {% if 'Error' in message %}error{% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <div class="dashboard-container">
+        <div class="conversations-panel">
+            <div class="panel-header">
+                💬 Conversations for Approval
+            </div>
+            
+            <div class="conversations-section">
+                <div class="section-title unapproved">🔴 Unapproved ({{ conversations.unapproved|length }})</div>
+                {% for conv in conversations.unapproved %}
+                <div class="conversation-item unapproved {% if selected_conversation and selected_conversation.id == conv.id %}selected{% endif %}" 
+                     onclick="selectConversation({{ conv.id }})">
+                    <div class="farmer-name">{{ conv.farmer_name }}</div>
+                    <div class="farmer-details">
+                        📞 +385{{ conv.farmer_phone[-9:] }} | 📍 {{ conv.farmer_location }}<br>
+                        🌾 {{ conv.farmer_type }} | 📏 {{ conv.farmer_size }} ha
+                    </div>
+                    <div class="message-preview">{{ conv.last_message[:100] }}...</div>
+                    <div class="timestamp">{{ conv.timestamp.strftime('%d.%m.%Y %H:%M') if conv.timestamp else 'Nepoznato vrijeme' }}</div>
+                </div>
+                {% endfor %}
+                
+                <div class="section-title approved">✅ Approved ({{ conversations.approved|length }})</div>
+                {% for conv in conversations.approved %}
+                <div class="conversation-item approved {% if selected_conversation and selected_conversation.id == conv.id %}selected{% endif %}" 
+                     onclick="selectConversation({{ conv.id }})">
+                    <div class="farmer-name">{{ conv.farmer_name }}</div>
+                    <div class="farmer-details">
+                        📞 +385{{ conv.farmer_phone[-9:] }} | 📍 {{ conv.farmer_location }}<br>
+                        🌾 {{ conv.farmer_type }} | 📏 {{ conv.farmer_size }} ha
+                    </div>
+                    <div class="message-preview">{{ conv.last_message[:100] }}...</div>
+                    <div class="timestamp">{{ conv.timestamp.strftime('%d.%m.%Y %H:%M') if conv.timestamp else 'Nepoznato vrijeme' }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="details-panel">
+            {% if selected_conversation %}
+            <div class="details-header">
+                📋 Conversation Details - {{ selected_conversation.farmer_name }}
+            </div>
+            
+            <div class="conversation-details">
+                <div class="message-pair">
+                    <div class="farmer-message">
+                        <strong>👨‍🌾 Farmer:</strong> {{ selected_conversation.user_input }}
+                        <div class="timestamp">{{ selected_conversation.timestamp.strftime('%d.%m.%Y %H:%M') if selected_conversation.timestamp else 'Nepoznato vrijeme' }}</div>
+                    </div>
+                    
+                    <div class="ava-response">
+                        <strong>🤖 AVA Response:</strong> {{ selected_conversation.ava_response }}
+                        <span class="approval-status {% if selected_conversation.approved_status %}approved{% else %}pending{% endif %}">
+                            {% if selected_conversation.approved_status %}APPROVED{% else %}PENDING APPROVAL{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="message-actions">
+                        {% if not selected_conversation.approved_status %}
+                        <form method="post" action="/approve_message" style="display: inline;">
+                            <input type="hidden" name="conversation_id" value="{{ selected_conversation.id }}">
+                            <input type="hidden" name="action" value="approve">
+                            <button type="submit" class="btn btn-approve">✅ Approve</button>
+                        </form>
+                        {% endif %}
+                        
+                        <form method="post" action="/approve_message" style="display: inline;">
+                            <input type="hidden" name="conversation_id" value="{{ selected_conversation.id }}">
+                            <input type="hidden" name="action" value="edit">
+                            <button type="submit" class="btn btn-edit">✏️ Edit & Approve</button>
+                        </form>
+                        
+                        <form method="post" action="/approve_message" style="display: inline;">
+                            <input type="hidden" name="conversation_id" value="{{ selected_conversation.id }}">
+                            <input type="hidden" name="action" value="manual">
+                            <button type="submit" class="btn btn-manual">📝 Manual Reply</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bulk-actions">
+                <form method="post" action="/bulk_approve" style="display: inline;">
+                    <input type="hidden" name="farmer_id" value="{{ selected_conversation.farmer_id }}">
+                    <input type="hidden" name="action" value="approve_farmer">
+                    <button type="submit" class="btn btn-bulk">✅ Approve All for This Farmer</button>
+                </form>
+                
+                <form method="post" action="/bulk_approve" style="display: inline;">
+                    <input type="hidden" name="action" value="approve_all">
+                    <button type="submit" class="btn btn-bulk">✅ Approve All</button>
+                </form>
+            </div>
+            
+            <div class="manual-message">
+                <form method="post" action="/send_manual_message">
+                    <input type="hidden" name="farmer_id" value="{{ selected_conversation.farmer_id }}">
+                    <textarea name="message" placeholder="Type a new message to the farmer..." required></textarea>
+                    <button type="submit" class="btn btn-approve">📤 Send New Message</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="no-selection">
+                <div>
+                    <h3>🌾 Agronomic Approval Dashboard</h3>
+                    <p>Select a conversation from the left panel for review and approval</p>
+                    <br>
+                    <p><strong>Funkcionalnosti:</strong></p>
+                    <ul style="text-align: left; margin-top: 1rem;">
+                        <li>🔴 Unapproved conversations - red background</li>
+                        <li>✅ Approved conversations - green background</li>
+                        <li>📝 Individual message approval</li>
+                        <li>🚀 Bulk approval by farmer or all</li>
+                        <li>📤 Send new messages to farmers</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function selectConversation(conversationId) {
+            window.location.href = `/conversation/${conversationId}`;
+        }
+
+        // Auto-refresh every 30 seconds to get new conversations
+        setInterval(function() {
+            if (!document.querySelector('.selected')) {
+                location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

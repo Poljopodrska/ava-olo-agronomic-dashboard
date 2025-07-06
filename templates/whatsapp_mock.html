@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Mock WhatsApp Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            color: #128C7E;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .whatsapp-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 2rem auto;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .farmer-selection {
+            width: 300px;
+            background: #f0f0f0;
+            border-right: 1px solid #ddd;
+            padding: 1rem;
+        }
+
+        .farmer-dropdown {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .farmer-info {
+            background: rgba(37, 211, 102, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .farmer-info h3 {
+            color: #128C7E;
+            margin-bottom: 0.5rem;
+        }
+
+        .farmer-info p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .conversation-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .conversation-header {
+            background: #128C7E;
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #e5ddd5;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255,255,255,0.1) 10px,
+                    rgba(255,255,255,0.1) 20px
+                );
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .message-farmer {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message-bubble.farmer {
+            background: #DCF8C6;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-bubble.ava {
+            background: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .message-input {
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .message-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .message-input button {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .message-input button:hover {
+            background: #128C7E;
+        }
+
+        .no-selection {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .alert {
+            background: rgba(37, 211, 102, 0.1);
+            border: 1px solid #25D366;
+            color: #128C7E;
+            padding: 1rem;
+            margin: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .alert.error {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #128C7E;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-container {
+                flex-direction: column;
+                height: auto;
+                margin: 1rem;
+            }
+            
+            .farmer-selection {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div style="font-size: 2rem;">📱</div>
+            <h1>AVA OLO Mock WhatsApp</h1>
+        </div>
+        <div style="color: #25D366; font-weight: 600;">
+            ✅ Active - Port 8006
+        </div>
+    </div>
+
+    {% if message %}
+    <div class="alert {% if 'Error' in message %}error{% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <div class="whatsapp-container">
+        <div class="farmer-selection">
+            <h3 style="margin-bottom: 1rem; color: #128C7E;">📱 Select Farmer</h3>
+            
+            <select class="farmer-dropdown" onchange="selectFarmer(this.value)">
+                <option value="">-- Select a farmer --</option>
+                {% for farmer in farmers %}
+                <option value="{{ farmer.id }}" {% if selected_farmer and selected_farmer.id == farmer.id %}selected{% endif %}>
+                    {{ farmer.name }} (+385{{ farmer.phone[-9:] }})
+                </option>
+                {% endfor %}
+            </select>
+
+            {% if selected_farmer %}
+            <div class="farmer-info">
+                <h3>{{ selected_farmer.name }}</h3>
+                <p><strong>📞 Phone:</strong> +385{{ selected_farmer.phone[-9:] }}</p>
+                <p><strong>📍 Location:</strong> {{ selected_farmer.location }}</p>
+                <p><strong>🌾 Type:</strong> {{ selected_farmer.farm_type }}</p>
+                <p><strong>📏 Size:</strong> {{ selected_farmer.total_size_ha }} ha</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="conversation-area">
+            {% if selected_farmer %}
+            <div class="conversation-header">
+                💬 Conversation with farmer: {{ selected_farmer.name }}
+            </div>
+            
+            <div class="messages-container">
+                {% if conversations %}
+                    {% for conv in conversations %}
+                    <div class="message message-farmer">
+                        <div class="message-bubble farmer">
+                            <div>{{ conv.user_input }}</div>
+                            <div class="message-time">{{ conv.timestamp.strftime('%H:%M') if conv.timestamp else 'Nepoznato vrijeme' }}</div>
+                        </div>
+                    </div>
+                    {% if conv.ava_response %}
+                    <div class="message">
+                        <div class="message-bubble ava">
+                            <div>{{ conv.ava_response }}</div>
+                            <div class="message-time">{{ conv.timestamp.strftime('%H:%M') if conv.timestamp else 'Nepoznato vrijeme' }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <h3>No conversations</h3>
+                    <p>Start a conversation by sending a message</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <form method="post" action="/send_message" class="message-input">
+                <input type="hidden" name="farmer_id" value="{{ selected_farmer.id }}">
+                <input type="text" name="message" placeholder="Type a message..." required>
+                <button type="submit">Send</button>
+            </form>
+            {% else %}
+            <div class="no-selection">
+                <div>
+                    <h3>📱 Welcome to AVA OLO Mock WhatsApp Interface</h3>
+                    <p>Select a farmer from the dropdown menu to start a conversation</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function selectFarmer(farmerId) {
+            if (farmerId) {
+                window.location.href = `/farmer/${farmerId}`;
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // Auto-scroll to bottom of messages
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Handle Enter key for message input
+        document.querySelector('input[name="message"]')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.closest('form').submit();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Database Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-tab:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        .content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .table-list {
+            padding: 0;
+        }
+
+        .table-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .table-item:hover {
+            background: rgba(103, 126, 234, 0.1);
+        }
+
+        .table-item.active {
+            background: rgba(103, 126, 234, 0.2);
+            border-right: 3px solid #667eea;
+        }
+
+        .table-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .table-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .table-description {
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+
+        .content-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            flex: 1;
+        }
+
+        .content-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .filters-bar {
+            padding: 1rem 1.5rem;
+            background: #f9fafb;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .page-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .page-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 1.5rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div style="font-size: 2rem;">🗃️</div>
+            <h1>AVA OLO Database Explorer</h1>
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('tables')">Tablice</button>
+            <button class="nav-tab" onclick="switchTab('query')">SQL Upit</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Tablice Baze Podataka</div>
+                <input type="text" class="search-box" placeholder="Pretraži tablice..." 
+                       onkeyup="filterTables(this.value)">
+            </div>
+            <div class="table-list" id="tableList">
+                {% if tables %}
+                    {% for table in tables %}
+                    <div class="table-item" onclick="selectTable('{{ table.name }}')">
+                        <div class="table-name">{{ table.name }}</div>
+                        <div class="table-meta">{{ table.row_count }} redova • {{ table.columns|length }} kolona</div>
+                        {% if table.description %}
+                        <div class="table-description">{{ table.description }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="loading">Učitavanje tablica...</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Tables Tab -->
+            <div id="tabTables" class="tab-content">
+                <div class="content-header">
+                    <h2 class="content-title" id="currentTableTitle">Izaberite tablicu</h2>
+                    <div class="content-controls">
+                        <button class="btn btn-secondary" onclick="showColumnStats()">Statistike</button>
+                        <button class="btn btn-success" onclick="exportTable()">Izvezi Excel</button>
+                        <button class="btn btn-primary" onclick="refreshCurrentTable()">Osvježi</button>
+                    </div>
+                </div>
+
+                <div class="filters-bar">
+                    <input type="text" class="filter-input" placeholder="Pretraži podatke..." 
+                           id="dataSearch" onkeyup="searchData()">
+                    <select class="filter-input" id="orderColumn" onchange="updateTableData()">
+                        <option value="">Sortiraj po...</option>
+                    </select>
+                    <select class="filter-input" id="orderDirection" onchange="updateTableData()">
+                        <option value="desc">Opadajuće</option>
+                        <option value="asc">Uzlazno</option>
+                    </select>
+                    <input type="number" class="filter-input" placeholder="Limit" 
+                           id="limitInput" value="50" min="10" max="1000" onchange="updateTableData()">
+                </div>
+
+                <div class="table-container">
+                    <div id="tableContent">
+                        <div class="empty-state">
+                            <h3>Dobrodošli u Database Explorer</h3>
+                            <p>Izaberite tablicu iz lijevog panela za pregled podataka</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pagination" id="paginationContainer" style="display: none;">
+                    <div class="pagination-info" id="paginationInfo"></div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+
+            <!-- Query Tab -->
+            <div id="tabQuery" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2 class="content-title">SQL Upit</h2>
+                    <div class="content-controls">
+                        <button class="btn btn-primary" onclick="executeQuery()">Izvršiti</button>
+                        <button class="btn btn-secondary" onclick="clearQuery()">Obriši</button>
+                    </div>
+                </div>
+                <div style="padding: 1.5rem;">
+                    <textarea id="sqlQuery" 
+                              placeholder="Unesite SELECT upit ovdje..."
+                              style="width: 100%; height: 200px; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: monospace;"></textarea>
+                    <div id="queryResults" style="margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://localhost:8005/api';
+        let currentTable = null;
+        let currentPage = 1;
+        let currentData = null;
+        let allTables = {{ tables|tojson }};
+
+        // Initialize explorer
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!allTables || allTables.length === 0) {
+                loadTables();
+            }
+        });
+
+        async function apiRequest(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`API request failed for ${endpoint}:`, error);
+                throw error;
+            }
+        }
+
+        async function loadTables() {
+            try {
+                const tables = await apiRequest('/schema/tables');
+                allTables = tables;
+                displayTables(tables);
+            } catch (error) {
+                document.getElementById('tableList').innerHTML = 
+                    '<div class="error">Greška pri učitavanju tablica</div>';
+            }
+        }
+
+        function displayTables(tables) {
+            const tableList = document.getElementById('tableList');
+            
+            if (tables.length === 0) {
+                tableList.innerHTML = '<div class="empty-state">Nema tablica</div>';
+                return;
+            }
+
+            tableList.innerHTML = tables.map(table => `
+                <div class="table-item" onclick="selectTable('${table.name}')">
+                    <div class="table-name">${table.name}</div>
+                    <div class="table-meta">${table.row_count} redova • ${table.columns.length} kolona</div>
+                    ${table.description ? `<div class="table-description">${table.description}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function filterTables(searchTerm) {
+            const filtered = allTables.filter(table => 
+                table.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (table.description && table.description.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+            displayTables(filtered);
+        }
+
+        async function selectTable(tableName) {
+            // Update UI
+            document.querySelectorAll('.table-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.table-item').classList.add('active');
+
+            currentTable = tableName;
+            currentPage = 1;
+            
+            // Update header
+            document.getElementById('currentTableTitle').textContent = tableName;
+            
+            // Update sort dropdown
+            const table = allTables.find(t => t.name === tableName);
+            if (table) {
+                const orderSelect = document.getElementById('orderColumn');
+                orderSelect.innerHTML = '<option value="">Sortiraj po...</option>' + 
+                    table.columns.map(col => `<option value="${col.name}">${col.name}</option>`).join('');
+            }
+
+            // Load table data
+            await updateTableData();
+        }
+
+        async function updateTableData() {
+            if (!currentTable) return;
+
+            try {
+                const search = document.getElementById('dataSearch').value;
+                const orderBy = document.getElementById('orderColumn').value;
+                const orderDir = document.getElementById('orderDirection').value;
+                const limit = document.getElementById('limitInput').value;
+
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: limit,
+                    search: search,
+                    order_by: orderBy,
+                    order_dir: orderDir
+                });
+
+                const data = await apiRequest(`/data/${currentTable}?${params}`);
+                currentData = data;
+                displayTableData(data);
+                updatePagination(data);
+                
+            } catch (error) {
+                document.getElementById('tableContent').innerHTML = 
+                    '<div class="error">Greška pri učitavanju podataka</div>';
+            }
+        }
+
+        function displayTableData(data) {
+            const container = document.getElementById('tableContent');
+            
+            if (data.rows.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nema podataka</div>';
+                return;
+            }
+
+            const table = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            ${data.columns.map(col => `<th>${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.rows.map(row => `
+                            <tr>
+                                ${row.map(cell => `<td title="${cell}">${cell}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = table;
+        }
+
+        function updatePagination(data) {
+            const container = document.getElementById('paginationContainer');
+            const info = document.getElementById('paginationInfo');
+            const controls = document.getElementById('paginationControls');
+
+            if (data.total_count <= data.limit) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            
+            const start = (data.page - 1) * data.limit + 1;
+            const end = Math.min(start + data.rows.length - 1, data.total_count);
+            
+            info.textContent = `${start}-${end} od ${data.total_count} rezultata`;
+
+            const totalPages = Math.ceil(data.total_count / data.limit);
+            const buttons = [];
+
+            // Previous button
+            if (data.page > 1) {
+                buttons.push(`<button class="page-btn" onclick="changePage(${data.page - 1})">←</button>`);
+            }
+
+            // Page numbers
+            for (let i = Math.max(1, data.page - 2); i <= Math.min(totalPages, data.page + 2); i++) {
+                buttons.push(`
+                    <button class="page-btn ${i === data.page ? 'active' : ''}" 
+                            onclick="changePage(${i})">${i}</button>
+                `);
+            }
+
+            // Next button
+            if (data.has_more) {
+                buttons.push(`<button class="page-btn" onclick="changePage(${data.page + 1})">→</button>`);
+            }
+
+            controls.innerHTML = buttons.join('');
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            updateTableData();
+        }
+
+        function searchData() {
+            currentPage = 1;
+            updateTableData();
+        }
+
+        function refreshCurrentTable() {
+            if (currentTable) {
+                updateTableData();
+            }
+        }
+
+        async function exportTable() {
+            if (!currentTable) return;
+
+            try {
+                const search = document.getElementById('dataSearch').value;
+                const params = new URLSearchParams({
+                    format: 'excel',
+                    search: search,
+                    limit: 10000
+                });
+
+                window.open(`${API_BASE}/data/${currentTable}/export?${params}`, '_blank');
+            } catch (error) {
+                console.error('Export failed:', error);
+            }
+        }
+
+        async function executeQuery() {
+            const query = document.getElementById('sqlQuery').value.trim();
+            if (!query) return;
+
+            try {
+                const params = new URLSearchParams({ query: query, limit: 1000 });
+                const result = await apiRequest(`/query/custom?${params}`);
+                displayQueryResults(result);
+            } catch (error) {
+                document.getElementById('queryResults').innerHTML = 
+                    `<div class="error">Greška pri izvršavanju upita: ${error.message}</div>`;
+            }
+        }
+
+        function displayQueryResults(result) {
+            const container = document.getElementById('queryResults');
+            
+            if (result.rows.length === 0) {
+                container.innerHTML = '<div class="empty-state">Upit je izvršen, ali nema rezultata</div>';
+                return;
+            }
+
+            const table = `
+                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+                    <div style="background: #f8fafc; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                        <strong>Rezultati upita (${result.row_count} redova)</strong>
+                    </div>
+                    <div style="overflow: auto; max-height: 400px;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    ${result.columns.map(col => `<th>${col}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${result.rows.map(row => `
+                                    <tr>
+                                        ${row.map(cell => `<td title="${cell}">${cell}</td>`).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = table;
+        }
+
+        function clearQuery() {
+            document.getElementById('sqlQuery').value = '';
+            document.getElementById('queryResults').innerHTML = '';
+        }
+
+        function switchTab(tabName) {
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).style.display = 'block';
+        }
+
+        async function showColumnStats() {
+            if (!currentTable) return;
+
+            try {
+                const stats = await apiRequest(`/data/${currentTable}/columns`);
+                displayColumnStats(stats);
+            } catch (error) {
+                console.error('Failed to load column stats:', error);
+            }
+        }
+
+        function displayColumnStats(stats) {
+            const content = `
+                <div style="background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+                    <div style="background: #f8fafc; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+                        <strong>Statistike Kolona - ${currentTable}</strong>
+                    </div>
+                    ${stats.map(col => `
+                        <div style="padding: 1rem; border-bottom: 1px solid #f3f4f6;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+                                <div><strong>Kolona:</strong> ${col.name}</div>
+                                <div><strong>Tip:</strong> ${col.type}</div>
+                                <div><strong>Null:</strong> ${col.null_count}</div>
+                                <div><strong>Jedinstvene:</strong> ${col.unique_count}</div>
+                                ${col.min_value ? `<div><strong>Min:</strong> ${col.min_value}</div>` : ''}
+                                ${col.max_value ? `<div><strong>Max:</strong> ${col.max_value}</div>` : ''}
+                            </div>
+                            ${col.sample_values.length > 0 ? `
+                                <div style="font-size: 0.9rem; color: #6b7280;">
+                                    <strong>Primjeri:</strong> ${col.sample_values.join(', ')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('tableContent').innerHTML = content;
+        }
+    </script>
+</body>
+</html>

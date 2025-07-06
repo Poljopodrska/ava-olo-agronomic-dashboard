@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Agronomic Dashboard Redirect</title>
+    <meta http-equiv="refresh" content="{{ redirect_delay }};url={{ redirect_url }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #2c5530;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .redirect-info {
+            background: rgba(103, 126, 234, 0.1);
+            border: 2px solid rgba(103, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .redirect-message {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .countdown {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c5530;
+            margin: 1rem 0;
+        }
+
+        .manual-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .manual-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: white;
+        }
+
+        .loading-animation {
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1>AVA OLO Agronomic Dashboard</h1>
+        <p class="subtitle">Redirecting to New Expert Approval Interface</p>
+
+        <div class="redirect-info">
+            <div class="redirect-message">
+                🚀 Upgrading to Enhanced Approval Dashboard
+            </div>
+            
+            <div class="loading-animation">
+                <div class="spinner"></div>
+            </div>
+            
+            <div>Redirecting in <span class="countdown" id="countdown">{{ redirect_delay }}</span> seconds...</div>
+            
+            <p style="margin-top: 1rem; color: #6b7280;">
+                The new dashboard provides improved conversation management,<br>
+                bulk approval features, and enhanced expert controls.
+            </p>
+        </div>
+
+        <a href="{{ redirect_url }}" class="manual-link">
+            ⚡️ Go to New Dashboard Now
+        </a>
+    </div>
+
+    <script>
+        let countdown = {{ redirect_delay }};
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                window.location.href = '{{ redirect_url }}';
+            }
+        }, 1000);
+
+        // Automatic redirect if meta refresh fails
+        setTimeout(() => {
+            window.location.href = '{{ redirect_url }}';
+        }, {{ redirect_delay * 1000 }});
+    </script>
+</body>
+</html>

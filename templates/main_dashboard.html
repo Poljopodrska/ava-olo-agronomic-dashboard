@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO Dashboard - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #2c5530;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem 1.5rem;
+            border-radius: 15px;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: white;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+
+        .service-card:hover::before {
+            animation: shine 0.6s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .card-port {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .api-gateway-info {
+            background: rgba(103, 126, 234, 0.1);
+            border: 2px solid rgba(103, 126, 234, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .api-gateway-title {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .api-link {
+            background: rgba(103, 126, 234, 0.1);
+            color: #667eea;
+            padding: 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            border: 2px solid rgba(103, 126, 234, 0.2);
+        }
+
+        .api-link:hover {
+            background: rgba(103, 126, 234, 0.2);
+            text-decoration: none;
+            color: #5a67d8;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #16a34a;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .info-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .architecture-info {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .api-links {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>AVA System Active</span>
+    </div>
+
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1>AVA OLO Dashboard</h1>
+        <p class="subtitle">Croatian Agricultural Virtual Assistant - Main Portal</p>
+
+        <div class="api-gateway-info">
+            <div class="api-gateway-title">🔗 API Gateway - Modular Backend</div>
+            <p>All services are connected through a centralized API Gateway on port 8000 with PostgreSQL database.</p>
+        </div>
+
+        <div class="services-grid">
+            {% for service in services %}
+            <a href="{{ service.url }}" target="_blank" class="service-card">
+                <div class="card-icon">{{ service.icon }}</div>
+                <div class="card-title">{{ service.name }}</div>
+                <div class="card-description">{{ service.description }}</div>
+                <div class="card-port">Port {{ service.port }}</div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="api-links">
+            <a href="http://localhost:8000/docs" target="_blank" class="api-link">
+                📡 API Gateway Documentation
+            </a>
+            <a href="http://localhost:8000/api/v1/health" target="_blank" class="api-link">
+                💚 API Gateway Status
+            </a>
+        </div>
+
+        <div class="info-section">
+            <h3>Active Services</h3>
+            <div class="architecture-info">
+                <strong>🏗️ Modular System:</strong><br>
+                • <strong>API Gateway:</strong> localhost:8000 (Centralized backend)<br>
+                • <strong>Test UI:</strong> localhost:8002 (Testing interface)<br>
+                • <strong>Agronomic Dashboard:</strong> localhost:8003 (Expert monitoring)<br>
+                • <strong>Business KPIs:</strong> localhost:8004 (Business indicators)<br>
+                • <strong>Database Explorer:</strong> localhost:8005 (Database review)<br>
+                • <strong>Mock WhatsApp:</strong> localhost:8006 (WhatsApp simulation)<br>
+                • <strong>Approval Dashboard:</strong> localhost:8007 (Expert approval)<br><br>
+                
+                <strong>🔧 Features:</strong> PostgreSQL only database • English localization • 
+                Excel/CSV export • Expert response review • Real-time monitoring
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple health check for all services
+        async function checkAllServices() {
+            const services = [8000, 8002, 8003, 8004, 8005];
+            const results = await Promise.allSettled(
+                services.map(port => 
+                    fetch(`http://localhost:${port}/health`)
+                        .then(r => r.ok)
+                        .catch(() => false)
+                )
+            );
+            
+            const healthyCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
+            const statusEl = document.querySelector('.status-indicator');
+            
+            if (healthyCount === services.length) {
+                statusEl.style.background = 'rgba(34, 197, 94, 0.1)';
+                statusEl.style.color = '#16a34a';
+                statusEl.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                statusEl.querySelector('span').textContent = 'All Services Active';
+            } else if (healthyCount > 0) {
+                statusEl.style.background = 'rgba(245, 158, 11, 0.1)';
+                statusEl.style.color = '#d97706';
+                statusEl.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                statusEl.querySelector('span').textContent = `${healthyCount}/${services.length} Services Active`;
+            } else {
+                statusEl.style.background = 'rgba(239, 68, 68, 0.1)';
+                statusEl.style.color = '#dc2626';
+                statusEl.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                statusEl.querySelector('span').textContent = 'Services Unavailable';
+            }
+        }
+
+        // Check all services on load and every 30 seconds
+        checkAllServices();
+        setInterval(checkAllServices, 30000);
+    </script>
+</body>
+</html>

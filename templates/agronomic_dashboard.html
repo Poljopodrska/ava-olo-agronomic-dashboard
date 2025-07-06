@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Agronomski Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .expert-info {
+            background: #2c5530;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c5530;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .conversations-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .conversations-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .conversations-header h2 {
+            color: #2c5530;
+            font-size: 1.5rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            background: #f0f0f0;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #2c5530;
+            color: white;
+        }
+
+        .conversation-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .conversation-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .conversation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .conversation-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .confidence-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .confidence-high { background: #d4edda; color: #155724; }
+        .confidence-medium { background: #fff3cd; color: #856404; }
+        .confidence-low { background: #f8d7da; color: #721c24; }
+
+        .question {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #2c5530;
+        }
+
+        .answer {
+            background: #e8f5e8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #4a7c59;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .edit-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            font-family: inherit;
+        }
+
+        .edit-form input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #2c5530;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span style="font-size: 2rem;">🌾</span>
+            <h1>AVA OLO Agronomski Dashboard</h1>
+        </div>
+        <div class="expert-info">
+            👨‍🌾 Stručni nadzor razgovora
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_conversations }}</div>
+                <div class="stat-label">Ukupno razgovora</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.pending_review }}</div>
+                <div class="stat-label">Čeka pregled</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.low_confidence }}</div>
+                <div class="stat-label">Niska pouzdanost</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.today_conversations }}</div>
+                <div class="stat-label">Danas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ "%.1f"|format(stats.avg_confidence * 100) }}%</div>
+                <div class="stat-label">Prosječna pouzdanost</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ "%.1f"|format(stats.approval_rate) }}%</div>
+                <div class="stat-label">Stopa odobrenja</div>
+            </div>
+        </div>
+
+        <!-- Conversations Section -->
+        <div class="conversations-section">
+            <div class="conversations-header">
+                <h2>Razgovori za pregled</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterConversations('all')">Svi</button>
+                    <button class="filter-btn" onclick="filterConversations('pending')">Na čekanju</button>
+                    <button class="filter-btn" onclick="filterConversations('low-confidence')">Niska pouzdanost</button>
+                </div>
+            </div>
+
+            <div id="conversations-list">
+                {% if conversations %}
+                    {% for conv in conversations %}
+                    <div class="conversation-card" data-confidence="{{ conv.confidence }}" data-approved="{{ conv.expert_approved }}">
+                        <div class="conversation-header">
+                            <div class="conversation-meta">
+                                <span>ID: {{ conv.id }}</span>
+                                <span>Poljoprivrednik: {{ conv.farmer_id or 'Nepoznat' }}</span>
+                                <span>{{ conv.created_at[:10] if conv.created_at else 'N/A' }}</span>
+                                <span>Tel: {{ conv.wa_phone or 'N/A' }}</span>
+                            </div>
+                            <span class="confidence-badge confidence-{{ 'high' if conv.confidence >= 0.8 else 'medium' if conv.confidence >= 0.6 else 'low' }}">
+                                Pouzdanost: {{ "%.1f"|format(conv.confidence * 100) }}%
+                            </span>
+                        </div>
+
+                        <div class="question">
+                            <strong>Pitanje:</strong><br>
+                            {{ conv.question }}
+                        </div>
+
+                        <div class="answer">
+                            <strong>Odgovor:</strong><br>
+                            {{ conv.answer }}
+                        </div>
+
+                        {% if conv.expert_notes %}
+                        <div style="background: #fff3cd; padding: 0.5rem; border-radius: 5px; margin-bottom: 1rem;">
+                            <strong>Napomene stručnjaka:</strong> {{ conv.expert_notes }}
+                        </div>
+                        {% endif %}
+
+                        <div class="action-buttons">
+                            {% if conv.expert_approved is none %}
+                            <button class="btn btn-approve" onclick="approveConversation({{ conv.id }}, true)">✅ Odobri</button>
+                            <button class="btn btn-reject" onclick="approveConversation({{ conv.id }}, false)">❌ Odbaci</button>
+                            {% endif %}
+                            <button class="btn btn-edit" onclick="toggleEditForm({{ conv.id }})">✏️ Uredi odgovor</button>
+                        </div>
+
+                        <div class="edit-form" id="edit-form-{{ conv.id }}">
+                            <textarea id="new-answer-{{ conv.id }}" placeholder="Unesite novi odgovor...">{{ conv.answer }}</textarea>
+                            <input type="text" id="expert-notes-{{ conv.id }}" placeholder="Napomene stručnjaka..." value="{{ conv.expert_notes or '' }}">
+                            <div>
+                                <button class="btn btn-approve" onclick="updateAnswer({{ conv.id }})">💾 Spremi</button>
+                                <button class="btn" onclick="toggleEditForm({{ conv.id }})">❌ Odustani</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>🎉 Nema razgovora za pregled</h3>
+                        <p>Svi razgovori su pregledani ili nema novih pitanja.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter conversations
+        function filterConversations(filter) {
+            const cards = document.querySelectorAll('.conversation-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Update button states
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                const confidence = parseFloat(card.dataset.confidence);
+                const approved = card.dataset.approved;
+                
+                let show = true;
+                
+                if (filter === 'pending') {
+                    show = approved === 'None';
+                } else if (filter === 'low-confidence') {
+                    show = confidence < 0.8;
+                }
+                
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // Approve/reject conversation
+        async function approveConversation(convId, approved) {
+            const notes = prompt(approved ? 'Napomene za odobrenje:' : 'Razlog odbacivanja:') || '';
+            
+            try {
+                const response = await fetch(`/api/approve/${convId}?approved=${approved}&notes=${encodeURIComponent(notes)}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    location.reload(); // Refresh to show updated state
+                } else {
+                    alert('Greška pri ažuriranju razgovora');
+                }
+            } catch (error) {
+                alert('Greška: ' + error.message);
+            }
+        }
+
+        // Toggle edit form
+        function toggleEditForm(convId) {
+            const form = document.getElementById(`edit-form-${convId}`);
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Update answer
+        async function updateAnswer(convId) {
+            const newAnswer = document.getElementById(`new-answer-${convId}`).value;
+            const expertNotes = document.getElementById(`expert-notes-${convId}`).value;
+            
+            if (!newAnswer.trim()) {
+                alert('Molim unesite odgovor');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/update-answer/${convId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        new_answer: newAnswer,
+                        expert_notes: expertNotes
+                    })
+                });
+                
+                if (response.ok) {
+                    location.reload(); // Refresh to show updated answer
+                } else {
+                    alert('Greška pri ažuriranju odgovora');
+                }
+            } catch (error) {
+                alert('Greška: ' + error.message);
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setTimeout(() => {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

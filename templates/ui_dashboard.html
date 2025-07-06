@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Test UI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c5530;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .test-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .response-section {
+            background: rgba(34, 197, 94, 0.05);
+            border: 2px solid rgba(34, 197, 94, 0.2);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .response-title {
+            color: #16a34a;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .response-text {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #16a34a;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .question-display {
+            background: rgba(103, 126, 234, 0.05);
+            border: 2px solid rgba(103, 126, 234, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: #667eea;
+        }
+
+        .api-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #16a34a;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .info-panel {
+            background: rgba(107, 114, 128, 0.05);
+            border: 1px solid rgba(107, 114, 128, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 2rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="api-status">
+        <div class="status-dot"></div>
+        <span>Test API Active</span>
+    </div>
+
+    <div class="container">
+        <div class="logo">🌾</div>
+        <h1>AVA OLO Test Interface</h1>
+        <p class="subtitle">Agricultural Query Testing Interface</p>
+
+        <div class="test-form">
+            <form method="post" action="/">
+                <div class="form-group">
+                    <label for="question">Test Agricultural Question:</label>
+                    <textarea 
+                        name="question" 
+                        id="question" 
+                        placeholder="Enter your agricultural question here...&#10;&#10;Examples:&#10;- When to plant corn?&#10;- How to treat grapevine powdery mildew?&#10;- How much fertilizer is needed for wheat?"
+                        required>{{ question or '' }}</textarea>
+                </div>
+                <button type="submit" class="submit-btn">🚀 Send Question</button>
+            </form>
+        </div>
+
+        {% if question %}
+        <div class="question-display">
+            <strong>Your question:</strong> {{ question }}
+        </div>
+        {% endif %}
+
+        {% if response %}
+        <div class="response-section">
+            <div class="response-title">
+                <span>✅</span>
+                <span>AVA Response:</span>
+            </div>
+            <div class="response-text">{{ response }}</div>
+        </div>
+        {% endif %}
+
+        <div class="info-panel">
+            <strong>ℹ️ Testing Information:</strong><br>
+            • This interface is for testing agricultural queries<br>
+            • Connected to API Gateway (port 8000)<br>
+            • Uses the new modular backend system<br>
+            • All responses go through expert review on port 8003
+        </div>
+    </div>
+
+    <script>
+        // Simple API health check
+        async function checkAPIHealth() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/health');
+                const statusEl = document.querySelector('.api-status');
+                
+                if (response.ok) {
+                    statusEl.style.background = 'rgba(34, 197, 94, 0.1)';
+                    statusEl.style.color = '#16a34a';
+                    statusEl.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                    statusEl.querySelector('span').textContent = 'API Gateway Active';
+                } else {
+                    statusEl.style.background = 'rgba(239, 68, 68, 0.1)';
+                    statusEl.style.color = '#dc2626';
+                    statusEl.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                    statusEl.querySelector('span').textContent = 'API Unavailable';
+                }
+            } catch (error) {
+                const statusEl = document.querySelector('.api-status');
+                statusEl.style.background = 'rgba(239, 68, 68, 0.1)';
+                statusEl.style.color = '#dc2626';
+                statusEl.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                statusEl.querySelector('span').textContent = 'API Unavailable';
+            }
+        }
+
+        // Check API health on load and periodically
+        checkAPIHealth();
+        setInterval(checkAPIHealth, 30000);
+    </script>
+</body>
+</html>

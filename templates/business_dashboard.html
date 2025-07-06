@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVA OLO - Business KPI Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            color: #2c5530;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .business-info {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .dashboard {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .kpi-title {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .icon-conversations { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+        .icon-farmers { background: linear-gradient(135deg, #34d399, #10b981); }
+        .icon-growth { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+        .icon-approval { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .change-positive { color: #16a34a; }
+        .change-negative { color: #dc2626; }
+        .change-neutral { color: #6b7280; }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .stats-summary {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .stats-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            opacity: 0.8;
+        }
+
+        .stat-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .performance-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .indicator-excellent { background: #d1fae5; color: #065f46; }
+        .indicator-good { background: #dbeafe; color: #1e40af; }
+        .indicator-warning { background: #fef3c7; color: #92400e; }
+        .indicator-poor { background: #fee2e2; color: #991b1b; }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .dashboard {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div style="font-size: 2rem;">📊</div>
+            <h1>AVA OLO Business Dashboard</h1>
+        </div>
+        <div class="business-info">
+            💼 Poslovni KPI-jevi i analitika
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Key Performance Indicators -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">Ukupno Razgovora</div>
+                    <div class="kpi-icon icon-conversations">💬</div>
+                </div>
+                <div class="kpi-value">{{ metrics.total_conversations }}</div>
+                <div class="kpi-change change-positive">
+                    <span>📈</span> {{ metrics.week_conversations }} ovaj tjedan
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">Aktivni Farmeri</div>
+                    <div class="kpi-icon icon-farmers">👨‍🌾</div>
+                </div>
+                <div class="kpi-value">{{ metrics.total_farmers }}</div>
+                <div class="kpi-change change-positive">
+                    <span>📈</span> {{ metrics.today_conversations }} danas
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">Rast (Tjedni)</div>
+                    <div class="kpi-icon icon-growth">📈</div>
+                </div>
+                <div class="kpi-value">{{ "%.1f"|format(metrics.growth_rate) }}%</div>
+                <div class="kpi-change {{ 'change-positive' if metrics.growth_rate >= 0 else 'change-negative' }}">
+                    <span>{{ '📈' if metrics.growth_rate >= 0 else '📉' }}</span> 
+                    {{ 'Pozitivan' if metrics.growth_rate >= 0 else 'Negativan' }} trend
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">Stopa Odobrenja</div>
+                    <div class="kpi-icon icon-approval">✅</div>
+                </div>
+                <div class="kpi-value">{{ "%.1f"|format(metrics.approval_rate) }}%</div>
+                <div class="kpi-change change-positive">
+                    <span>✅</span> {{ metrics.expert_approved }} odobreno
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Analytics -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span>Trend Razgovora (30 dana)</span>
+                    <button class="refresh-btn" onclick="refreshTrends()">Osvježi</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="stats-summary">
+                <div class="stats-header">
+                    <div class="stats-title">Ključne Metrike</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">Prosječna Pouzdanost</div>
+                    <div class="stat-value">
+                        {{ "%.1f"|format(metrics.avg_confidence * 100) }}%
+                        <span class="performance-indicator {{ 'indicator-excellent' if metrics.avg_confidence >= 0.9 else 'indicator-good' if metrics.avg_confidence >= 0.8 else 'indicator-warning' if metrics.avg_confidence >= 0.7 else 'indicator-poor' }}">
+                            {{ 'Izvrsno' if metrics.avg_confidence >= 0.9 else 'Dobro' if metrics.avg_confidence >= 0.8 else 'Upozorenje' if metrics.avg_confidence >= 0.7 else 'Slabo' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">Stopa Odobrenja</div>
+                    <div class="stat-value">
+                        {{ "%.1f"|format(metrics.approval_rate) }}%
+                        <span class="performance-indicator {{ 'indicator-excellent' if metrics.approval_rate >= 90 else 'indicator-good' if metrics.approval_rate >= 80 else 'indicator-warning' if metrics.approval_rate >= 70 else 'indicator-poor' }}">
+                            {{ 'Izvrsno' if metrics.approval_rate >= 90 else 'Dobro' if metrics.approval_rate >= 80 else 'Upozorenje' if metrics.approval_rate >= 70 else 'Slabo' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">Tjedni Rast</div>
+                    <div class="stat-value">
+                        {{ "%.1f"|format(metrics.growth_rate) }}%
+                        <span class="performance-indicator {{ 'indicator-excellent' if metrics.growth_rate >= 10 else 'indicator-good' if metrics.growth_rate >= 5 else 'indicator-warning' if metrics.growth_rate >= 0 else 'indicator-poor' }}">
+                            {{ 'Izvrsno' if metrics.growth_rate >= 10 else 'Dobro' if metrics.growth_rate >= 5 else 'Stagnacija' if metrics.growth_rate >= 0 else 'Pad' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">Današnji Promet</div>
+                    <div class="stat-value">
+                        {{ metrics.today_conversations }} razgovora
+                        <span class="performance-indicator indicator-good">Aktivno</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const trends = {{ trends|tojson }};
+        let trendsChart = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTrendsChart();
+            
+            // Auto-refresh every 60 seconds
+            setInterval(refreshDashboard, 60000);
+        });
+
+        function initializeTrendsChart() {
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            
+            if (trendsChart) {
+                trendsChart.destroy();
+            }
+
+            const data = trends.trends || [];
+            const labels = data.map(d => new Date(d.date).toLocaleDateString('hr-HR')).reverse();
+            const conversations = data.map(d => d.conversations).reverse();
+            const farmers = data.map(d => d.unique_farmers).reverse();
+
+            trendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Razgovori',
+                            data: conversations,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Jedinstveni Farmeri',
+                            data: farmers,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function refreshTrends() {
+            try {
+                const response = await fetch('/api/trends?days=30');
+                if (response.ok) {
+                    location.reload(); // Simple refresh for now
+                }
+            } catch (error) {
+                console.error('Failed to refresh trends:', error);
+            }
+        }
+
+        async function refreshDashboard() {
+            try {
+                const response = await fetch('/api/metrics');
+                if (response.ok) {
+                    // Could update metrics without full reload
+                    console.log('Dashboard metrics updated');
+                }
+            } catch (error) {
+                console.error('Failed to refresh dashboard:', error);
+            }
+        }
+
+        // Utility function for Croatian locale formatting
+        function formatNumber(num) {
+            return new Intl.NumberFormat('hr-HR').format(num);
+        }
+    </script>
+</body>
+</html>
